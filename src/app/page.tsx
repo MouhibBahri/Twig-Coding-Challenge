@@ -1,3 +1,4 @@
+import Pagination from "@/components/Paginations";
 import SearchBar from "@/components/SearchBar";
 import { product } from "@/lib/interfaces/product.interface";
 
@@ -7,6 +8,8 @@ export default async function Home({
 	searchParams: { [key: string]: string | string[] | undefined };
 }) {
 	const filter = (await searchParams).search;
+	const page = (await searchParams).page;
+	const limit = (await searchParams).limit;
 
 	const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
 	const res = await fetch(`${baseURL}/api/products`, {
@@ -14,9 +17,9 @@ export default async function Home({
 		headers: {
 			"Content-Type": "application/json",
 		},
-		body: JSON.stringify({ filter }),
+		body: JSON.stringify({ filter, page, limit }),
 	});
-	const products: product[] = await res.json();
+	const { products, totalPages } = await res.json();
 
 	// Let's test if we have an empty array of products
 	// const products: product[] = [];
@@ -35,7 +38,7 @@ export default async function Home({
 				</p>
 			) : (
 				<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-					{products.map((product) => (
+					{products.map((product: product) => (
 						<div
 							key={product.id}
 							className="rounded-2xl border border-gray-200 shadow-md hover:shadow-lg transition p-4 bg-white flex flex-col"
@@ -63,6 +66,8 @@ export default async function Home({
 					))}
 				</div>
 			)}
+
+			<Pagination totalPages={totalPages} />
 		</main>
 	);
 }
