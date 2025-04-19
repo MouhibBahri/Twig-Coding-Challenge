@@ -1,11 +1,5 @@
 import { products } from "@/data/product";
-
-interface product {
-	id: number;
-	name: string;
-	price: number;
-	description: string;
-}
+import { product } from "@/lib/interfaces/product.interface";
 
 export async function GET(req: Request) {
 	const typedProducts: product[] = products.map(
