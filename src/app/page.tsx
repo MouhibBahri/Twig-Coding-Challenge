@@ -1,9 +1,20 @@
+import SearchBar from "@/components/SearchBar";
 import { product } from "@/lib/interfaces/product.interface";
 
-export default async function Home() {
+export default async function Home({
+	searchParams,
+}: {
+	searchParams: { [key: string]: string | string[] | undefined };
+}) {
+	const filter = (await searchParams).search;
+
 	const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
 	const res = await fetch(`${baseURL}/api/products`, {
-		cache: "no-store",
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify({ filter }),
 	});
 	const products: product[] = await res.json();
 
@@ -15,6 +26,8 @@ export default async function Home() {
 			<h1 className="text-4xl font-bold text-center mb-10">
 				🛍️ Products
 			</h1>
+
+			<SearchBar />
 
 			{!products.length ? (
 				<p className="text-center text-gray-500">
