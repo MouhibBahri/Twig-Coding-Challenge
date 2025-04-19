@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import { useDebouncedCallback } from "use-debounce";
 
 export default function SearchBar() {
 	const router = useRouter();
@@ -11,9 +12,8 @@ export default function SearchBar() {
 
 	const [searchQuery, setSearchQuery] = useState(initQuery);
 
-	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const val = e.target.value;
-		setSearchQuery(val);
+	// Instead of pushing to url instantely the debounce search will wait 500ms after latest key before adding the keyword to the query params
+	const debounceSearch = useDebouncedCallback((val) => {
 		const params = new URLSearchParams(searchParams);
 
 		if (val === "") {
@@ -22,6 +22,12 @@ export default function SearchBar() {
 			params.set("search", val);
 		}
 		router.push(`?${params.toString()}`);
+	}, 500); // 500 ms
+
+	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const val = e.target.value;
+		setSearchQuery(val);
+		debounceSearch(val);
 	};
 
 	return (
